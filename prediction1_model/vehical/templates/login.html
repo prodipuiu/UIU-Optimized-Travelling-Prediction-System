@@ -1,0 +1,58 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body %}
+{% ifequal error "pat1" %}
+<script>
+    alert('logged in successfully');
+    window.location="{% url 'patient_home' %}";
+</script>
+{% endifequal %}
+
+{% ifequal error "notmember" %}
+<script>
+    alert('Your information verification is pending.plz login after sometimes');
+    window.location="{% url 'logout' %}";
+</script>
+{% endifequal %}
+{% ifequal error "pat2" %}
+<script>
+    alert('logged in successfully');
+    window.location="{% url 'doctor_home' %}";
+</script>
+{% endifequal %}
+{% ifequal error "not" %}
+<script>
+    alert('Username & Password are not Matching');
+</script>
+{% endifequal %}
+
+	<!-- login -->
+	<section class="logins py-5">
+		<div class="container py-xl-5 py-lg-3">
+			<div style="padding: 50px" class="title-section mb-md-5 mb-4">
+				<h6 class="w3ls-title-sub"></h6>
+				<h3 style="text-align: center ; padding-top: 5px;" class="w3ls-title text-uppercase text-dark font-weight-bold ">Login Now</h3>
+			</div><hr/>
+			<div class="login px-sm-4 mx-auto mw-100 login-wrapper">
+				<form class="login-wrapper" action="" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<label>Username</label>
+						<input type="text" class="form-control" name="uname" placeholder="Enter Your Username" required="">
+						<small id="emailHelp" class="form-text text-muted">We'll never share your Detail with anyone else.</small>
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" class="form-control" name="pwd" placeholder="Enter Your Password" required="">
+					</div>
+					<button type="submit" class="btn submit mt-4"style="background:red;padding:15px;border-radius: 10px;background: rgb(44, 147, 243);">Login</button>
+					<p class="text-center mt-5">
+						<a  href="{% url 'signup' %}"> Don't have an Account?  <span style="color: red; font-size: 15px">Register here</span></a>
+					</p>
+				</form>
+			</div>
+		</div>
+	</section>
+	<p style="margin-top:96px"></p>
+	<!-- //login  -->
+{% endblock %}
