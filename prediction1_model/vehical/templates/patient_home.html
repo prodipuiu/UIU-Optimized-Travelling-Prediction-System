@@ -1,0 +1,283 @@
+
+{% extends 'index.html' %}
+{% load static %}
+{% block body %}
+<div class="banner_w3lspvt" style="margin-top:8%">  
+
+    <div class="wrapper justify-content-center">
+         <div class="display" style="margin-left:43%;font-size: 34px;color:rgba(46, 138, 138, 1);font-weight: 500 ;">
+            <div id="time"></div>
+         </div>
+         <span></span>
+         <span></span>
+      </div>
+
+  <div class="banner_w3lspvt" style="margin-top:2%">  
+            <section>       
+                <div class="container-fluid">
+                    <div class="row justify-content-center" >
+                        <div class="col-sm-2 col-2"style="background:rgb(255, 165, 0);border-radius: 25px;">
+                            <div class="form-group">
+                                <label for="country" style="font-size: 20px; color:white;font-weight:700">Route</label>
+                                <select class="form-control" id="countries" style="font-size: 20px; color:orange;"url={% url 'get_countries' %}>
+                                </select>
+                            </div>
+                        </div>
+                         <div class="col-sm-2 col-2"style="background:rgb(44, 147, 243);border-radius: 25px;">
+                            <div class="form-group" >
+                               <label for="pop" style="font-size: 20px; color:white;font-weight:700">Day</label>
+                                <select class="form-control" id="pops"style="font-size: 20px; color:rgb(44, 147, 243);" url={% url 'get_pops' %}>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-2"style="background:rgb(255, 165, 0);border-radius: 25px;">
+                            <div class="form-group">
+                                <label for="year" style="font-size: 20px; color:white;font-weight:500">Time</label>
+                                <select class="form-control" id="year"style="font-size: 20px; color:orange;">
+                                    <option value="0" start=0 end=0>All Time</option>
+                                    <option value="1" start=10 end=76>7am</option>
+                                    <option value="2" start=75 end=81>7:30am</option>
+                                    <option value="3" start=80 end=86>8am</option>
+                                    <option value="4" start=85 end=91>8:30</option>
+                                    <option value="4" start=90 end=96>9am</option>
+                                    <option value="4" start=95 end=101>9:30am</option>
+                                    <option value="4" start=100 end=106>10am</option>
+                                    <option value="4" start=105 end=111>10:30am</option>
+                                    <option value="4" start=110 end=116>11am</option>
+                                    <option value="4" start=115 end=121>11:30am</option>
+                                    <option value="4" start=120 end=126>12pm</option>
+                                    <option value="4" start=125 end=131>12:30pm</option>
+                                    <option value="4" start=130 end=136>1pm</option>
+                                    <option value="4" start=135 end=141>1:30pm</option>
+                                    <option value="4" start=140 end=146>2pm</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <div class="container">
+                    <div class="row justify-content-center table-responsive">
+                            <span class='font-weight-bold'></span> results found.
+                        </div>
+                        <div id="page-count" class="text-right">Page:
+                            <span class='font-weight-bold'></span>
+                        </div>
+
+                        <table class="table table-light table-bordered table-hover" id="hero_table" data-toggle="table" >
+                            <thead class="thead-dark"style="border-radius: 15px;" >
+                                <tr>
+                                    
+                                    <th style="text-align: center;border-radius: 7px;" data-field="Route">Route</th>
+                                    <th style="text-align: center;border-radius: 7px;"data-field="pop">Day</th>
+                                    
+                                    <th style="padding: 8px;background-color: orange;border-radius: 15px;text-align: center;"data-field="artist">Prediction Time</th>
+                                    <th style="text-align: center;border-radius: 7px;"data-field="warning">Title</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_body"style="text-align: center;border-collapse: collapse;width: 100%;padding: 8px;border-bottom: 1px solid #ddd;">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row justify-content-center">
+                        <nav aria-label="navigation">
+                            <ul class="pagination">
+                                <li class="page-item">
+                        <div id="result-count" class="text-right"style="border-radius: 25px;">
+                                    <button class="btn btn-primary page-link"style="border-radius: 25px;" id = "previous">Previous</button>
+                                </li>
+                                <li class="page-item pull-right">
+                                    <button class="btn btn-primary page-link"style="border-radius: 25px;" id="next">Next</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </section>
+        
+            <!---templates/index.html--->
+            {% block javascript %}
+            
+            <script>
+                                    
+
+                // maintaining the state of each variable.
+                var current_page = 1; // maintains the current page
+                var page_limit = 10; // the limit of results shown on page.
+                var sort_by = ""; // maintains the select option for sort_by
+                var country = ""; // maintains the select option for country
+                var start_year = ""; // maintains the select option for start_yr
+                var end_year = ""; // maintains the select option for end_yr
+                var pop = "";// maintains the select option for start_yr
+               
+
+                function get_list_url(page) {
+                    // returns the consructed url with query params.
+                    return `api/get/top_songs?page=${page}&limit=${page_limit}&country=${country}&sort_by=${sort_by}&start=${start_year}&end=${end_year}&pop=${pop}`;
+                }
+
+                function getCountries() {
+                    // call the ajax and populates the country select options
+                    $.ajax({
+                        method: 'GET',
+                        url: $("#countries").attr("url"),
+                        success: function (response) {
+                            countries_option = "<option value='all' selected>All Routes</option>";
+                            $.each(response["country"], function (a, b) {
+                                countries_option += "<option>" + b + "</option>"
+                            });
+                            $("#countries").html(countries_option)
+                        },
+                        error: function (response) {
+                            console.log(response)
+                        }
+                    });
+                }
+                function getPops() {
+                    // call the ajax and populates the country select options
+                    $.ajax({
+                        method: 'GET',
+                        url: $("#pops").attr("url"),
+                        success: function (response) {
+                            pops_option = "<option value='all' selected>All Day</option>";
+                            $.each(response["pop"], function (a, b) {
+                                pops_option += "<option>" + b + "</option>"
+                            });
+                            $("#pops").html(pops_option)
+                        },
+                        error: function (response) {
+                            console.log(response)
+                        }
+                    });
+                }
+
+                // On select change of the country select, call the getAPIData
+                $("#countries").on("change", function (e) {
+                    current_page = 1;
+                    country = this.value
+                    getAPIData(get_list_url(current_page));
+                });
+                // On select change of the year select, call the getAPIData
+                $("#year").on("change", function (e) {
+                    current_page = 1;
+                    start_year = $(this).find(':selected').attr("start");
+                    end_year = $(this).find(':selected').attr("end");
+                    getAPIData(get_list_url(current_page));
+                })
+               
+
+                $("#pops").on("change", function (e) {
+                    current_page = 1;
+                    pop = this.value
+                    getAPIData(get_list_url(current_page));
+                })
+
+                // On select change of the sort select, call the getAPIData with sortby.
+                $("#sort").on("change", function (e) {
+                    current_page = 1;
+                    sort_by = this.value
+                    getAPIData(get_list_url(current_page));
+                })
+
+                // Helper method that popluates the html table with next and prev
+                // url, and current page number.
+                function putTableData(response) {
+                    // creating table row for each response and
+                    // pushing to the html cntent of table body of table_body table
+                    let row;
+                    $("#table_body").html("");
+                    if (response["data"].length > 0) {
+                        $.each(response["data"], function (a, b) {
+                            row = "<tr> <td>" + b.country + "</td>" +
+                                
+                                "<td>" + b.pop + "</td>" +
+                                
+                                "<td>" + b.artist + "</td>" +
+                                "<td>" + b.title + "</td>" +
+                               
+                                $("#table_body").append(row);
+                        });
+                    }
+                    else{
+                        // if there is no results found!
+                       $("#table_body").html("No results found."); 
+                    }
+                    if (response.pagination.has_prev) {
+                        // sets the previous page url.
+                        $("#previous").attr("data-url", get_list_url(current_page - 1));
+                        $("#previous").attr("disabled", false);
+                    } else {
+                        // if there is no prev page available, disable the btn.
+                        $("#previous").attr("disabled", true);
+                    }
+                    if (response.pagination.has_next) {
+                        // sets the next page url.
+                        $("#next").attr("data-url", get_list_url(current_page + 1));
+                        $("#next").attr("disabled", false);
+                    } else {
+                        // if there is no next page available, disable the btn.
+                        $("#next").attr("disabled", true)
+                    }
+                }
+
+                // On click of next/prev button, call the getAPIData with the given url.
+                $(".page-link").click(function (e) {
+                    e.preventDefault();
+                    let url = $(this).attr("data-url");
+                    getAPIData(url);
+                })
+
+                // Main method which calls AJAX to get the data from backend.
+                function getAPIData(url) {
+                    $.ajax({
+                        method: 'GET',
+                        url: url,
+                        success: function (response) {
+                            current_page = parseInt(response.pagination.page)
+                            putTableData(response);
+                            // put the total result count.
+                            $("#result-count span").html(response.pagination.total)
+                            $("#page-count span").html(response.pagination.page)
+                        },
+                        error: function (response) {
+                            $("#hero_table").hide();
+                        }
+                    });
+                }
+
+                //on page load, call this two methods.
+                getAPIData(get_list_url(current_page));
+                getCountries()
+                getPops()
+
+            setInterval(()=>{
+           const time = document.querySelector(".display #time");
+           let date = new Date();
+           let hours = date.getHours();
+           let minutes = date.getMinutes();
+           let seconds = date.getSeconds();
+           let day_night = "AM";
+           if(hours > 12){
+             day_night = "PM";
+             hours = hours - 12;
+           }
+           if(seconds < 10){
+             seconds = "0" + seconds;
+           }
+           if(minutes < 10){
+             minutes = "0" + minutes;
+           }
+           if(hours < 10){
+             hours = "0" + hours;
+           }
+           time.textContent = hours + ":" + minutes + ":" + seconds + " "+ day_night;
+         });
+            </script>
+
+
+{% endblock javascript %}
+</div>
+
+{% endblock %}
